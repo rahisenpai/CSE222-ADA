@@ -1,0 +1,143 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\usepackage[margin=1.5cm]{geometry}
+
+\title{Theory Assignment-2: ADA Winter-2024}
+\author{Himanshu Raj (2022216) \and Tanish Verma (2022532)}
+
+\date{February 11, 2024}
+\begin{document}
+
+\maketitle
+
+\section{Preprocessing}
+% Your preprocessing steps go here
+Given an input array A of size n (greater than 0), construct a two-dimensional dp array of size nx2 (n arrays of size 2). Initial values of dp array don't matter as we will update the entire array during the execution of our algorithm. For Ring, we'll use A[i] and for Ding, -A[i].
+\\We will follow 0-based indexing, i.e. A[0,1,...,n-1] and
+the indexes of dp array are as follows
+\[
+  \begin{bmatrix}
+    (0,0) & (0,1) \\
+    (1,0) & (1,1) \\
+    . & . \\
+    . & . \\
+    (n-1,0) & (n-1,1)
+  \end{bmatrix}
+\]
+
+\section{Subproblem Definition}
+\textbf{dp[i][0]} \textrightarrow The maximum amount of chickens in possession of Mr. Fox till the i$^{th}$ week, where Mr. Fox says Ring in the i$^{th}$ week.\\
+\textbf{dp[i][1]}\textrightarrow The maximum amount of chickens in possession of Mr. Fox till the i$^{th}$ week, where Mr. Fox says Ding in the i$^{th}$ week.\\
+Note: The second parameter's value refers to Ring for that week if it is 0, or Ding if it is 1.
+
+\section{Recurrence Relation}
+% Provide the recursive relation of your algorithm
+\textbf{Base Cases}\\
+if (n $>$ 0):{\\
+\-\hspace{20pt}dp[0][0] = A[0]\\
+\-\hspace{20pt}dp[0][1] = -A[0]\\
+}\\
+if (n $>$ 1):{\\
+\-\hspace{20pt}dp[1][0] = A[1] + max( dp[0][0] , dp[0][1])\\
+\-\hspace{20pt}dp[1][1] = -A[1] + max( dp[0][0] , dp[0][1])\\
+}\\
+if (n $>$ 2):{\\
+\-\hspace{20pt}dp[2][0] = A[2] + max( dp[1][0] , dp[1][1])\\
+\-\hspace{20pt}dp[2][1] = -A[2] + max( dp[1][0] , dp[1][1])\\
+}\\
+\textbf{Recurrence of the Subproblem for i = 3 to n-1}\\\[dp[i][0] = A[i] + max\left\{\begin{array}{lr}
+        dp[i-1][1]\\
+      dp[i-2][1] + A[i-1]\\
+      dp[i-3][1] + A[i-2] + A[i-1]
+        \end{array}\right\}
+  \] \[\-\hspace{8pt}dp[i][1] = -A[i] + max\left\{\begin{array}{lr}
+        dp[i-1][0]\\
+        dp[i-2][0] - A[i-1]\\
+        dp[i-3][0] - A[i-2] - A[i-1]
+        \end{array}\right\}
+  \]
+\\Note: The second parameter's value refers to Ring for that week if it is 0, or Ding if it is 1.\\
+The value taken for Ring at i$^{th}$ week is A[i].\\
+The value taken for Ding at i$^{th}$ week is -A[i].\\
+So, the negative symbol represents Ding for that week.
+
+\section{Subproblem that solves the actual problem}
+% Analyze the time and space complexity of your algorithm
+\textbf{max (dp[n-1][0], dp[n-1][1])} \textrightarrow \hspace{1pt} returns the largest number of chickens that Mr. Fox earns by running in the obstacle course.
+
+
+\section{Pseudocode}
+\begin{algorithm}
+% \caption{Your Algorithm}
+\begin{algorithmic}[1]
+    \Function{chickenSolver}{$\text{A, n, dp}$}\\
+        % Pseudocode for your algorithm
+        \hspace{20pt}if (n$>$0):\\
+        \hspace{40pt}dp[0][0] = A[0]\\
+        \hspace{40pt}dp[0][1] = -A[0]\\
+        \\
+        \hspace{20pt}if (n$>$1):\\
+        \hspace{40pt}dp[1][0] = A[1] + max(dp[0][0], dp[0][1])\\
+        \hspace{40pt}dp[1][1] = -A[1] + max(dp[0][0], dp[0][1])\\
+        \\
+        \hspace{20pt}if (n$>$2):\\
+        \hspace{40pt}dp[2][0] = A[2] + max(dp[1][0], dp[1][1])\\
+        \hspace{40pt}dp[2][1] = -A[2] + max(dp[1][0], dp[1][1])\\
+        \\
+        \hspace{20pt}for (i : 3 to n-1):\\
+        \\
+        \hspace{40pt}dp[i][0] = A[i] + max (dp[i-1][1], A[i-1]+dp[i-2][1], A[i-1]+A[i-2]+dp[i-3][1])\\
+        \\
+        \hspace{40pt}dp[i][1] = -A[i] + max (dp[i-1][0], -A[i-1]+dp[i-2][0], -A[i-1]-A[i-2]+dp[i-3][0])\\
+        \\
+        \hspace{20pt}return max (dp[n-1][0], dp[n-1][1])
+    \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Algorithm Description}
+% Describe your algorithm here
+The primary objective is to calculate the maximum amount of chickens Mr. Fox can get at the end of the path, while keeping in mind the constraints. For this we will use the concept of dynamic programming.\\
+The dp array stores the maximum chickens at the i$^{th}$ iteration for both cases, that is, when i$^{th}$ choice is Ring or Ding. Note that in the dp array, dp[i][0] is the value in the array when i$^{th}$ entry is a Ring and dp[i][1] is the value when it is a Ding. \\
+The first three entries of the dp array correspond directly to the base cases of the dynamic programming problem, the explanation of base cases is as follows:\\
+For i = 0, the entry for the Ring column is just A[i] and for Ding column is just -A[i].\\
+For i = 1, it is A[i] + the maximum of the two columns in the previous entry, which is maximum of dp[0][0] and dp[0][1] in Ring case. For Ding case, it is similar but A[i] is replaced with -A[i].\\
+For i = 2, it is A[i] + the maximum of the two columns in the previous entry, that is maximum of dp[1][0] and dp[1][1] in Ring case. For Ding, we use -A[i] instead of A[i].\\
+\\
+Now,\\
+for i\textrightarrow 3 to n-1\\
+\-\hspace{20pt}{we use the Recurrence defined above to calculate the dp[i][0]$^{th}$ and dp[i][1]$^{th}$ entries in the array.\\
+\-\hspace{20pt}To calculate dp[i][0] and dp[i][1], there are three cases each to ensure the given constraints are not violated while\\
+\-\hspace{20pt}calculating maximum chickens, that is,  at most three Rings or Dings are allowed in a row.\\
+\-\hspace{20pt}Now, for dp[i][0], the cases are as follows:\\
+\-\hspace{20pt}If the i$^{th}$ choice is a Ring, \\
+\-\hspace{40pt}then i-1$^{th}$ choice can be a Ding, so we take dp[i-1][1]\\
+\-\hspace{40pt}If the i-1$^{th}$ choice is also a Ring, then i-2$^{th}$ choice can be a Ding, so we take dp[i-2][1] + A[i-1]\\
+\-\hspace{40pt}If the i-2$^{th}$ choice is also another Ring, then i-3$^{th}$ choice can only be a Ding, so we take dp[i-3][1] + A[i-2] + A[i-1]\\
+\-\hspace{20pt}Finally for dp[i][0] we take the maximum value of these three cases and add the value of A[i].\\
+\\
+\-\hspace{20pt}For dp[i][1], the cases are as follows:\\
+\-\hspace{20pt}If the i$^{th}$ choice is a Ding, \\
+\-\hspace{40pt}then i-1$^{th}$ choice can be a Ring, so we take dp[i-1][0]\\
+\-\hspace{40pt}If the i-1$^{th}$ choice is also a Ding, then i-2$^{th}$ choice can be a Ring, so we take dp[i-2][0] - A[i-1]\\
+\-\hspace{40pt}If the i-2$^{th}$ choice is also a Ding, then i-3$^{th}$ choice has to be a Ring, so we take dp[i-3][0] - A[i-2] - A[i-1]\\
+\-\hspace{20pt}Finally, for dp[i][1] we take the maximum value of these three cases and add -A[i] to it.
+}\\
+\\
+Finally, we return the maximum of the values in dp[n-1][0] and dp[n-1][1].\\
+
+\section{Complexity Analysis}
+% Analyze the time and space complexity of your algorithm
+\subsection{Time complexity}
+During the algorithm, we are iterating over the array A once, and in each iteration we compute values for the dp array by taking the maximum from 3 values twice, and the values are taken from the previous indexes of the dp array. Both these operations of getting values and computing their maximum take constant time. So running time complexity of our algorithm is O(n).\\
+\subsection{Space complexity}
+We are using an additional dp array of size 2n, so additional space complexity 
+of our algorihtm is O(2n).
+
+
+\end{document}
